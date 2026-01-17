@@ -1,5 +1,9 @@
 import * as SQLite from 'expo-sqlite';
-import compendiumData from '../data/compendium.json';
+import racesData from '../../data/races.json';
+import classesData from '../../data/classes.json';
+import skillsData from '../../data/skills.json';
+import featsData from '../../data/feats.json';
+import powersData from '../../data/powers.json';
 
 const DB_NAME = 'dnd4e_v2.db';
 
@@ -117,7 +121,7 @@ const seedCompendium = async (db: SQLite.SQLiteDatabase) => {
         const result = await db.getFirstAsync<{ value: string }>('SELECT value FROM meta WHERE key = ?', 'compendium_version');
         console.log('Current version in DB:', result?.value);
 
-        const currentVersion = '1.0';
+        const currentVersion = '1.1';
 
         if (!result || result.value !== currentVersion) {
             console.log('Seeding compendium data... (This may take a moment)');
@@ -133,27 +137,27 @@ const seedCompendium = async (db: SQLite.SQLiteDatabase) => {
                 `);
 
                 console.log('Inserting races...');
-                for (const race of compendiumData.races) {
+                for (const race of racesData) {
                     await db.runAsync('INSERT INTO races (name, traits) VALUES (?, ?)', race.name, race.traits);
                 }
 
                 console.log('Inserting classes...');
-                for (const cls of compendiumData.classes) {
+                for (const cls of classesData) {
                     await db.runAsync('INSERT INTO classes (name, role, source) VALUES (?, ?, ?)', cls.name, cls.role, cls.source);
                 }
 
                 console.log('Inserting skills...');
-                for (const skill of compendiumData.skills) {
+                for (const skill of skillsData) {
                     await db.runAsync('INSERT INTO skills (name, ability, trained) VALUES (?, ?, ?)', skill.name, skill.ability, skill.trained ? 1 : 0);
                 }
 
                 console.log('Inserting feats...');
-                for (const feat of compendiumData.feats) {
+                for (const feat of featsData) {
                     await db.runAsync('INSERT INTO feats (name, tier, prerequisite, benefit) VALUES (?, ?, ?, ?)', feat.name, feat.tier, feat.prerequisite, feat.benefit);
                 }
 
                 console.log('Inserting powers...');
-                for (const power of compendiumData.powers) {
+                for (const power of powersData) {
                     await db.runAsync('INSERT INTO powers (name, level, type, class, action, range) VALUES (?, ?, ?, ?, ?, ?)', power.name, power.level, power.type, power.class, power.action, power.range);
                 }
 
