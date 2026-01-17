@@ -1,8 +1,10 @@
-import { View, StyleSheet, FlatList } from 'react-native';
+import { View, FlatList } from 'react-native';
 import { Text, Button, Card, Title, Paragraph, FAB } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useCharacterStore } from '../src/store/characterStore';
 import { useEffect } from 'react';
+import { globalStyles } from '../src/styles/global.styles';
+import { theme } from '../src/styles/theme';
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -13,26 +15,26 @@ export default function HomeScreen() {
     }, []);
 
     return (
-        <View style={styles.container}>
-            <View style={styles.headerContainer}>
+        <View style={globalStyles.container}>
+            <View style={globalStyles.headerContainer}>
                 <Button
                     mode="outlined"
                     icon="book-open-variant"
                     onPress={() => router.push('/compendium')}
-                    style={styles.compendiumButton}
-                    textColor="#e0e0e0"
+                    style={{ borderColor: theme.colors.subtext }}
+                    textColor={theme.colors.text}
                 >
                     Open Compendium
                 </Button>
             </View>
             {characters.length === 0 ? (
-                <View style={styles.emptyState}>
-                    <Text variant="headlineMedium" style={styles.text}>No Characters Yet</Text>
-                    <Text style={styles.subtext}>Your adventure begins here.</Text>
+                <View style={globalStyles.emptyState}>
+                    <Text variant="headlineMedium" style={globalStyles.text}>No Characters Yet</Text>
+                    <Text style={globalStyles.subtitle}>Your adventure begins here.</Text>
                     <Button
                         mode="contained"
                         onPress={() => router.push('/character/create')}
-                        style={styles.button}
+                        style={globalStyles.button}
                     >
                         Create New Character
                     </Button>
@@ -41,12 +43,12 @@ export default function HomeScreen() {
                 <FlatList
                     data={characters}
                     keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.list}
+                    contentContainerStyle={{ paddingBottom: 80 }}
                     renderItem={({ item }) => (
-                        <Card style={styles.card} onPress={() => router.push(`/character/${item.id}`)}>
+                        <Card style={globalStyles.card} onPress={() => router.push(`/character/${item.id}`)}>
                             <Card.Content>
-                                <Title style={styles.cardTitle}>{item.name}</Title>
-                                <Paragraph style={styles.cardSubtitle}>Lv {item.level} {item.race} {item.class}</Paragraph>
+                                <Title style={globalStyles.cardTitle}>{item.name}</Title>
+                                <Paragraph style={globalStyles.cardSubtitle}>Lv {item.level} {item.race} {item.class}</Paragraph>
                             </Card.Content>
                         </Card>
                     )}
@@ -56,7 +58,7 @@ export default function HomeScreen() {
             {characters.length > 0 && (
                 <FAB
                     icon="plus"
-                    style={styles.fab}
+                    style={globalStyles.fab}
                     onPress={() => router.push('/character/create')}
                     color="white"
                 />
@@ -64,55 +66,3 @@ export default function HomeScreen() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#121212',
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-    },
-    text: {
-        color: '#e0e0e0',
-    },
-    subtext: {
-        color: '#a0a0a0',
-        marginBottom: 20,
-    },
-    button: {
-        marginTop: 10,
-        backgroundColor: '#d32f2f',
-    },
-    list: {
-        padding: 16,
-        paddingBottom: 80, // Space for FAB
-    },
-    card: {
-        backgroundColor: '#1e1e1e',
-        marginBottom: 16,
-    },
-    cardTitle: {
-        color: '#fff',
-    },
-    cardSubtitle: {
-        color: '#a0a0a0',
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#d32f2f',
-    },
-    headerContainer: {
-        padding: 16,
-        paddingBottom: 0,
-    },
-    compendiumButton: {
-        borderColor: '#a0a0a0',
-    },
-});

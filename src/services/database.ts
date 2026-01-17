@@ -5,21 +5,33 @@ const DB_NAME = 'dnd4e_v2.db';
 
 import { Platform } from 'react-native';
 
+let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
+
 export const getDB = async () => {
-    try {
-        if (Platform.OS === 'web') {
-            const db = await SQLite.openDatabaseAsync(DB_NAME);
-            // Verify db connection immediately on web to catch wa-sqlite errors early
-            await db.execAsync('SELECT 1');
-            return db;
-        }
-        return await SQLite.openDatabaseAsync(DB_NAME);
-    } catch (error) {
-        if (Platform.OS === 'web') {
-            console.warn("WebSQLiteOpenError: Failed to open database. This is likely due to missing 'Cross-Origin-Opener-Policy' and 'Cross-Origin-Embedder-Policy' headers required for SharedArrayBuffer.", error);
-        }
-        throw error;
+    if (dbPromise) {
+        return dbPromise;
     }
+
+    dbPromise = (async () => {
+        try {
+            if (Platform.OS === 'web') {
+                const db = await SQLite.openDatabaseAsync(DB_NAME);
+                // Verify db connection immediately on web to catch wa-sqlite errors early
+                await db.execAsync('SELECT 1');
+                return db;
+            }
+            return await SQLite.openDatabaseAsync(DB_NAME);
+        } catch (error) {
+            if (Platform.OS === 'web') {
+                console.warn("WebSQLiteOpenError: Failed to open database. This is likely due to missing 'Cross-Origin-Opener-Policy' and 'Cross-Origin-Embedder-Policy' headers required for SharedArrayBuffer.", error);
+            }
+            // Reset promise on failure so we can try again
+            dbPromise = null;
+            throw error;
+        }
+    })();
+
+    return dbPromise;
 };
 
 export const initDatabase = async () => {

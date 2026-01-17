@@ -1,15 +1,15 @@
-
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Title, Button, Text } from 'react-native-paper';
 import { useState, useCallback } from 'react';
 import { DraftService } from '../../../src/services/draftService';
+import { globalStyles } from '../../../src/styles/global.styles';
+import { theme } from '../../../src/styles/theme';
 
 export default function CreateCharacterIndex() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [drafts, setDrafts] = useState<{ id: string; step: number; data: any }[]>([]);
-    const [refreshing, setRefreshing] = useState(false);
 
     const loadDrafts = async () => {
         try {
@@ -50,9 +50,7 @@ export default function CreateCharacterIndex() {
             'numbers',
             'details'
         ];
-        // Ensure step is within bounds (1-9)
         const safeStep = Math.max(1, Math.min(step, 9));
-        // Array is 0-indexed, so step 1 corresponds to index 0
         const routeName = routes[safeStep - 1];
 
         router.push({ pathname: `/character/create/${routeName}`, params: { draftId: id } });
@@ -68,21 +66,21 @@ export default function CreateCharacterIndex() {
     };
 
     return (
-        <View style={styles.container}>
-            <Title style={styles.title}>Create New Character</Title>
-            <Text style={styles.description}>
+        <ScrollView contentContainerStyle={globalStyles.container}>
+            <Title style={[globalStyles.title, { marginTop: 40, textAlign: 'center' }]}>Create New Character</Title>
+            <Text style={[globalStyles.subtitle, { textAlign: 'center' }]}>
                 Follow the 9 steps from the Player's Handbook to create your hero.
             </Text>
 
-            <View style={styles.buttonContainer}>
+            <View style={{ width: '100%', maxWidth: 300, marginBottom: 40, alignSelf: 'center' }}>
                 {isLoading ? (
-                    <ActivityIndicator size="large" color="#d32f2f" />
+                    <ActivityIndicator size="large" color={theme.colors.primary} />
                 ) : (
                     <Button
                         mode="contained"
                         onPress={startNewCharacter}
-                        style={styles.button}
-                        labelStyle={styles.buttonLabel}
+                        style={globalStyles.button}
+                        labelStyle={{ fontSize: 18 }}
                         icon="plus"
                     >
                         Start New Character
@@ -91,30 +89,30 @@ export default function CreateCharacterIndex() {
             </View>
 
             {drafts.length > 0 && (
-                <View style={styles.draftsContainer}>
-                    <Title style={styles.draftsTitle}>Resume Draft</Title>
+                <View style={{ width: '100%', maxWidth: 400, flex: 1, alignSelf: 'center' }}>
+                    <Title style={[globalStyles.title, { fontSize: 20 }]}>Resume Draft</Title>
                     {drafts.map((draft) => (
-                        <View key={draft.id} style={styles.draftItem}>
-                            <View style={styles.draftInfo}>
-                                <Text style={styles.draftName}>
+                        <View key={draft.id} style={globalStyles.listItem}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={globalStyles.listItemTitle}>
                                     {draft.data.name !== 'New Hero' ? draft.data.name : 'Untitled Character'}
                                 </Text>
-                                <Text style={styles.draftDetails}>
+                                <Text style={globalStyles.listItemSubtitle}>
                                     Phase {draft.step}: {draft.data.race} {draft.data.class}
                                 </Text>
                             </View>
-                            <View style={styles.draftActions}>
+                            <View style={globalStyles.row}>
                                 <Button
                                     mode="text"
                                     onPress={() => resumeDraft(draft.id, draft.step)}
-                                    textColor="#4caf50"
+                                    textColor={theme.colors.success}
                                 >
                                     Resume
                                 </Button>
                                 <Button
                                     mode="text"
                                     onPress={() => deleteDraft(draft.id)}
-                                    textColor="#ef5350"
+                                    textColor={theme.colors.error}
                                     compact
                                 >
                                     Delete
@@ -124,74 +122,6 @@ export default function CreateCharacterIndex() {
                     ))}
                 </View>
             )}
-        </View>
+        </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#121212',
-        padding: 20,
-        alignItems: 'center',
-    },
-    title: {
-        color: '#fff',
-        marginBottom: 16,
-        fontSize: 28,
-        marginTop: 40,
-    },
-    description: {
-        color: '#ccc',
-        textAlign: 'center',
-        marginBottom: 30,
-        fontSize: 16,
-    },
-    buttonContainer: {
-        width: '100%',
-        maxWidth: 300,
-        marginBottom: 40,
-    },
-    button: {
-        backgroundColor: '#d32f2f',
-        paddingVertical: 8,
-    },
-    buttonLabel: {
-        fontSize: 18,
-    },
-    draftsContainer: {
-        width: '100%',
-        maxWidth: 400,
-        flex: 1,
-    },
-    draftsTitle: {
-        color: '#e0e0e0',
-        fontSize: 20,
-        marginBottom: 16,
-        alignSelf: 'flex-start',
-    },
-    draftItem: {
-        backgroundColor: '#1e1e1e',
-        borderRadius: 8,
-        padding: 16,
-        marginBottom: 12,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    draftInfo: {
-        flex: 1,
-    },
-    draftName: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontSize: 16,
-    },
-    draftDetails: {
-        color: '#a0a0a0',
-    },
-    draftActions: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    }
-});

@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import { View, FlatList } from 'react-native';
 import { Card, Title, Text } from 'react-native-paper';
 import { useCompendiumStore } from '../../src/store/compendiumStore';
 import { Stack } from 'expo-router';
+import { globalStyles } from '../../src/styles/global.styles';
 
 export default function RacesScreen() {
     const { races, fetchRaces } = useCompendiumStore();
@@ -12,17 +13,17 @@ export default function RacesScreen() {
     }, []);
 
     return (
-        <View style={styles.container}>
+        <View style={globalStyles.container}>
             <Stack.Screen options={{ title: 'Races' }} />
             <FlatList
                 data={races}
                 keyExtractor={(item) => item.name}
-                contentContainerStyle={styles.list}
+                contentContainerStyle={globalStyles.list}
                 renderItem={({ item }) => (
-                    <Card style={styles.card}>
+                    <Card style={globalStyles.card}>
                         <Card.Content>
-                            <Title style={styles.cardTitle}>{item.name}</Title>
-                            <Text style={styles.cardDetail}>{item.traits}</Text>
+                            <Title style={globalStyles.cardTitle}>{item.name}</Title>
+                            <Text style={globalStyles.cardDetail}>{item.traits}</Text>
                         </Card.Content>
                     </Card>
                 )}
@@ -30,24 +31,3 @@ export default function RacesScreen() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#121212',
-    },
-    list: {
-        padding: 16,
-    },
-    card: {
-        backgroundColor: '#1e1e1e',
-        marginBottom: 16,
-    },
-    cardTitle: {
-        color: '#fff',
-    },
-    cardDetail: {
-        color: '#a0a0a0',
-        marginTop: 4,
-    },
-});
