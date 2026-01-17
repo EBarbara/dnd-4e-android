@@ -9,6 +9,17 @@ export default function HomeScreen() {
 
     return (
         <View style={styles.container}>
+            <View style={styles.headerContainer}>
+                <Button
+                    mode="outlined"
+                    icon="book-open-variant"
+                    onPress={() => router.push('/compendium')}
+                    style={styles.compendiumButton}
+                    textColor="#e0e0e0"
+                >
+                    Open Compendium
+                </Button>
+            </View>
             {characters.length === 0 ? (
                 <View style={styles.emptyState}>
                     <Text variant="headlineMedium" style={styles.text}>No Characters Yet</Text>
@@ -91,5 +102,12 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         backgroundColor: '#d32f2f',
+    },
+    headerContainer: {
+        padding: 16,
+        paddingBottom: 0,
+    },
+    compendiumButton: {
+        borderColor: '#a0a0a0',
     },
 });
