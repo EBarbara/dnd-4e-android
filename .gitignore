@@ -41,5 +41,4 @@ yarn-error.*
 /android
 
 # Data seeding
-data/*.json
-src/data/compendium.json
+src/data/*.json
