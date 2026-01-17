@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCharacterStore } from '../../../src/store/characterStore';
 import { CharacterForm } from '../../../src/components/CharacterForm';
@@ -26,22 +26,25 @@ export default function EditCharacterScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <Title style={styles.title}>Edit {character.name}</Title>
             <CharacterForm
                 initialValues={character}
                 onSubmit={handleUpdate}
                 submitLabel="Save Changes"
+                mode="edit"
             />
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
         backgroundColor: '#121212',
+    },
+    contentContainer: {
+        padding: 16,
     },
     title: {
         marginBottom: 24,

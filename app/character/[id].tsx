@@ -1,5 +1,5 @@
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useCharacterStore } from '../../src/store/characterStore';
 import { Text, Button, Title, Paragraph, Card } from 'react-native-paper';
 
@@ -21,7 +21,7 @@ export default function CharacterDetailScreen() {
 
     const handleDelete = () => {
         deleteCharacter(character.id);
-        router.back();
+        router.replace('/');
     };
 
     return (
@@ -45,6 +45,9 @@ export default function CharacterDetailScreen() {
                 </Card>
             </View>
 
+            {/* Update Header Title */}
+            <Stack.Screen options={{ title: character.name || 'Character Details' }} />
+
             <View style={styles.actions}>
                 <Button
                     mode="contained"
@@ -52,6 +55,14 @@ export default function CharacterDetailScreen() {
                     style={styles.editButton}
                 >
                     Edit Character
+                </Button>
+                <Button
+                    mode="outlined"
+                    onPress={() => router.replace('/')}
+                    textColor="white"
+                    style={{ borderColor: 'white' }}
+                >
+                    Back to List
                 </Button>
                 <Button
                     mode="outlined"

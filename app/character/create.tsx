@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useCharacterStore } from '../../src/store/characterStore';
 import { CharacterForm } from '../../src/components/CharacterForm';
@@ -14,18 +14,20 @@ export default function CreateCharacterScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <Title style={styles.title}>Create New Character</Title>
-            <CharacterForm onSubmit={handleCreate} submitLabel="Create" />
-        </View>
+            <CharacterForm onSubmit={handleCreate} submitLabel="Create" mode="create" />
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
         backgroundColor: '#121212',
+    },
+    contentContainer: {
+        padding: 16,
     },
     title: {
         marginBottom: 24,
