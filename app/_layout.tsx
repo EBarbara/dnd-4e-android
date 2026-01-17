@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
 import { PaperProvider, MD3DarkTheme } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { useCompendiumStore } from '../src/store/compendiumStore';
 
 const theme = {
     ...MD3DarkTheme,
@@ -12,6 +14,12 @@ const theme = {
 };
 
 export default function RootLayout() {
+    const initializeCompendium = useCompendiumStore((state) => state.initialize);
+
+    useEffect(() => {
+        initializeCompendium();
+    }, []);
+
     return (
         <PaperProvider theme={theme}>
             <Stack

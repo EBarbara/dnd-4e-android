@@ -1,21 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Card, Title, Text } from 'react-native-paper';
-import { useLocalSearchParams } from 'expo-router';
-// import { Stack } from 'expo-router'; // Duplicate import if I'm not careful, but I need Stack.Screen
-
-import { Stack as ExpoStack } from 'expo-router';
-
 import { useCompendiumStore } from '../../src/store/compendiumStore';
+import { Stack } from 'expo-router';
 
 export default function RacesScreen() {
-    const racesData = useCompendiumStore((state) => state.races);
+    const { races, fetchRaces } = useCompendiumStore();
+
+    useEffect(() => {
+        fetchRaces();
+    }, []);
 
     return (
         <View style={styles.container}>
-            <ExpoStack.Screen options={{ title: 'Races' }} />
+            <Stack.Screen options={{ title: 'Races' }} />
             <FlatList
-                data={racesData}
+                data={races}
                 keyExtractor={(item) => item.name}
                 contentContainerStyle={styles.list}
                 renderItem={({ item }) => (

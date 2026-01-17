@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Card, Title, Text } from 'react-native-paper';
 import { Stack } from 'expo-router';
@@ -6,13 +6,17 @@ import { Stack } from 'expo-router';
 import { useCompendiumStore } from '../../src/store/compendiumStore';
 
 export default function SkillsScreen() {
-    const skillsData = useCompendiumStore((state) => state.skills);
+    const { skills, fetchSkills } = useCompendiumStore();
+
+    useEffect(() => {
+        fetchSkills();
+    }, []);
 
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ title: 'Skills' }} />
             <FlatList
-                data={skillsData}
+                data={skills}
                 keyExtractor={(item) => item.name}
                 contentContainerStyle={styles.list}
                 renderItem={({ item }) => (

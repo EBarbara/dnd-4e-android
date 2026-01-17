@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Card, Title, Text } from 'react-native-paper';
 import { Stack } from 'expo-router';
@@ -6,13 +6,17 @@ import { Stack } from 'expo-router';
 import { useCompendiumStore } from '../../src/store/compendiumStore';
 
 export default function FeatsScreen() {
-    const featsData = useCompendiumStore((state) => state.feats);
+    const { feats, fetchFeats } = useCompendiumStore();
+
+    useEffect(() => {
+        fetchFeats();
+    }, []);
 
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ title: 'Feats' }} />
             <FlatList
-                data={featsData}
+                data={feats}
                 keyExtractor={(item) => item.name}
                 contentContainerStyle={styles.list}
                 renderItem={({ item }) => (

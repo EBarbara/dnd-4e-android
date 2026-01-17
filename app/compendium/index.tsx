@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Card, Title, Text, TouchableRipple } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router';
-import { useCompendiumStore } from '../../src/store/compendiumStore';
 
 const categories = [
     { id: 'races', title: 'Races', description: 'Playable races of the D&D world.' },
@@ -15,11 +14,6 @@ const categories = [
 
 export default function CompendiumScreen() {
     const router = useRouter();
-    const seedCompendium = useCompendiumStore((state) => state.seedCompendium);
-
-    useEffect(() => {
-        seedCompendium();
-    }, [seedCompendium]);
 
     return (
         <View style={styles.container}>

@@ -2,10 +2,15 @@ import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Button, Card, Title, Paragraph, FAB } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useCharacterStore } from '../src/store/characterStore';
+import { useEffect } from 'react';
 
 export default function HomeScreen() {
     const router = useRouter();
-    const characters = useCharacterStore((state) => state.characters);
+    const { characters, fetchCharacters } = useCharacterStore();
+
+    useEffect(() => {
+        fetchCharacters();
+    }, []);
 
     return (
         <View style={styles.container}>
