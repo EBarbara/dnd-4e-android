@@ -83,6 +83,12 @@ export const initDatabase = async () => {
                 class TEXT,
                 data TEXT
             );
+
+            CREATE TABLE IF NOT EXISTS character_drafts (
+                id TEXT PRIMARY KEY,
+                step INTEGER DEFAULT 1,
+                data TEXT
+            );
         `);
         console.log('Tables created successfully.');
 
