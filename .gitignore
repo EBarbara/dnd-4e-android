@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Data seeding
+data/*.json
+src/data/compendium.json
