@@ -21,7 +21,11 @@ export default function CharacterDetailScreen() {
 
     const handleDelete = () => {
         deleteCharacter(character.id);
-        router.replace('/');
+        if (router.canGoBack()) {
+            router.back();
+        } else {
+            router.replace('/');
+        }
     };
 
     return (
@@ -58,7 +62,13 @@ export default function CharacterDetailScreen() {
                 </Button>
                 <Button
                     mode="outlined"
-                    onPress={() => router.replace('/')}
+                    onPress={() => {
+                        if (router.canGoBack()) {
+                            router.back();
+                        } else {
+                            router.replace('/');
+                        }
+                    }}
                     textColor="white"
                     style={{ borderColor: 'white' }}
                 >
