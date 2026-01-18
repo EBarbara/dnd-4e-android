@@ -100,11 +100,7 @@ export const initDatabase = async () => {
                 data TEXT
             );
 
-            CREATE TABLE IF NOT EXISTS character_drafts (
-                id TEXT PRIMARY KEY,
-                step INTEGER DEFAULT 1,
-                data TEXT
-            );
+
         `);
         console.log('Tables created successfully.');
 
@@ -138,7 +134,7 @@ const seedCompendium = async (db: SQLite.SQLiteDatabase) => {
 
                 console.log('Inserting races...');
                 for (const race of racesData) {
-                    await db.runAsync('INSERT INTO races (name, traits) VALUES (?, ?)', race.name, race.traits);
+                    await db.runAsync('INSERT INTO races (name, traits) VALUES (?, ?)', race.name, JSON.stringify(race.traits));
                 }
 
                 console.log('Inserting classes...');

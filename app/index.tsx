@@ -14,6 +14,20 @@ export default function HomeScreen() {
         fetchCharacters();
     }, []);
 
+    const handleCreateNew = async () => {
+        const { addCharacter, characters } = useCharacterStore.getState();
+        // Since addCharacter is async and we want the new ID, we might need to change store or just wait and find
+        // For simplicity: add default, then fetch latest or rely on return
+        // Ideally addCharacter returns the new ID. Let's assume we can get it or generate it here.
+
+        // Actually, let's look at the store. It generates ID inside createDefaultCharacter.
+        // We can pass an ID if we want, or we need to refactor store to return the new character.
+        // Let's rely on generating ID here to be safe and navigating to it.
+        const newId = Date.now().toString();
+        await addCharacter({ id: newId }); // Pass ID to ensure we know it
+        router.push(`/character/${newId}`);
+    };
+
     return (
         <View style={globalStyles.container}>
             <View style={globalStyles.headerContainer}>
@@ -33,7 +47,7 @@ export default function HomeScreen() {
                     <Text style={globalStyles.subtitle}>Your adventure begins here.</Text>
                     <Button
                         mode="contained"
-                        onPress={() => router.push('/character/create')}
+                        onPress={handleCreateNew}
                         style={globalStyles.button}
                     >
                         Create New Character
@@ -59,7 +73,7 @@ export default function HomeScreen() {
                 <FAB
                     icon="plus"
                     style={globalStyles.fab}
-                    onPress={() => router.push('/character/create')}
+                    onPress={handleCreateNew}
                     color="white"
                 />
             )}
