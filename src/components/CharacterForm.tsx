@@ -1,13 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { TextInput, Button, Text, IconButton, Chip } from 'react-native-paper';
+import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { TextInput, Button, Text, IconButton, Chip, Portal, Modal, Surface, List } from 'react-native-paper';
+import { useCompendiumStore } from '../store/compendiumStore';
 import { Character, AbilityScores } from '../types';
 import {
     calculateAttributeModifier,
     calculateModifierPlusHalfLevel,
-    calculateTotalPointsSpent,
-    POINTS_BUDGET,
-    calculateAttributeCost
 } from '../utils/gameRules';
 
 interface CharacterFormProps {
@@ -31,16 +29,8 @@ export const CharacterForm = ({
         str: 10, con: 10, dex: 10, int: 10, wis: 10, cha: 10
     });
 
-    const pointsSpent = useMemo(() => calculateTotalPointsSpent(abilities as unknown as Record<string, number>), [abilities]);
-    const pointsRemaining = POINTS_BUDGET - pointsSpent;
-    const isPointsValid = pointsRemaining === 0;
-
-    // Check if all attributes are within 8-18 range for "Legal" status
-    const areAttributesInRange = useMemo(() => {
-        return Object.values(abilities).every(val => val >= 8 && val <= 18);
-    }, [abilities]);
-
-    const isLegal = isPointsValid && areAttributesInRange;
+    const { races } = useCompendiumStore();
+    const [showRaceSelector, setShowRaceSelector] = useState(false);
 
     const handleAbilityChange = (ability: keyof AbilityScores, value: string) => {
         const numValue = parseInt(value) || 0;
@@ -50,41 +40,14 @@ export const CharacterForm = ({
     const incrementAbility = (ability: keyof AbilityScores) => {
         setAbilities(prev => {
             const current = prev[ability];
-            if (current >= 18) return prev; // Max 18
-
-            // Check if we have enough points
-            // Cost to go from current to current+1
-            // Actually, we should just check if pointsRemaining >= cost difference
-            // But simple way: calculate new cost
-            const nextVal = current + 1;
-            /* 
-               We allow incrementing even if it makes points negative (Houseruled),
-               BUT the prompt said: "Enforce 'Not enough points' constraint on increment" 
-               in the plan?
-               Wait, plan said: "Enforce 'Not enough points' constraint on increment."
-               BUT newer prompt said: "Validation shouldn't prevent creation, just indicate status".
-               AND "Allow free editing as infinite reasons exist".
-               
-               For 'create' mode: strict point buy usually prevents going over budget in the UI to guide the user?
-               Or should we allow going over and just say "Houseruled -2 points"?
-               User said: "A validação não deve impedir a criação... apenas indicar que ele é 'houseruled' ou 'legal'".
-               This implies we CAN start with a houseruled char.
-               However, typical Point Buy UIs block you from spending points you don't have.
-               Let's allow it but show negative points. It's more flexible.
-               
-               Actually, standard Point Buy calculators STOP you at the limit.
-               But "Houseruled" implies we can break the rules.
-               So I will ALLOW going beyond, but show negative remaining points.
-            */
-            return { ...prev, [ability]: nextVal };
+            return { ...prev, [ability]: current + 1 };
         });
     };
 
     const decrementAbility = (ability: keyof AbilityScores) => {
         setAbilities(prev => {
             const current = prev[ability];
-            // Enforce min 8 for point buy UI
-            if (current <= 8) return prev;
+            if (current <= 1) return prev; // Min 1 is reasonable for D&D
             return { ...prev, [ability]: current - 1 };
         });
     };
@@ -117,14 +80,42 @@ export const CharacterForm = ({
                     mode="outlined"
                     keyboardType="numeric"
                 />
-                <TextInput
-                    label="Race"
-                    value={race}
-                    onChangeText={setRace}
-                    style={[styles.input, styles.halfInput]}
-                    mode="outlined"
-                />
+                <TouchableOpacity onPress={() => setShowRaceSelector(true)} style={[styles.halfInput, { marginBottom: 6 }]}>
+                    <TextInput
+                        label="Race"
+                        value={race}
+                        editable={false}
+                        style={styles.input}
+                        mode="outlined"
+                        right={<TextInput.Icon icon="chevron-down" onPress={() => setShowRaceSelector(true)} />}
+                    />
+                </TouchableOpacity>
             </View>
+
+            <Portal>
+                <Modal visible={showRaceSelector} onDismiss={() => setShowRaceSelector(false)} contentContainerStyle={styles.modalContent}>
+                    <View style={styles.modalHeader}>
+                        <Text variant="titleLarge" style={styles.modalTitle}>Select Race</Text>
+                    </View>
+                    <ScrollView style={styles.raceList}>
+                        {races.map((r) => (
+                            <List.Item
+                                key={r.id}
+                                title={r.name}
+                                description={r.ability_scores}
+                                onPress={() => {
+                                    setRace(r.name);
+                                    setShowRaceSelector(false);
+                                }}
+                                style={styles.raceItem}
+                                titleStyle={{ color: 'white' }}
+                                descriptionStyle={{ color: '#aaa' }}
+                                right={props => race === r.name ? <List.Icon {...props} icon="check" color="#d32f2f" /> : null}
+                            />
+                        ))}
+                    </ScrollView>
+                </Modal>
+            </Portal>
             <TextInput
                 label="Class"
                 value={charClass}
@@ -136,28 +127,7 @@ export const CharacterForm = ({
             <View style={styles.abilitiesContainer}>
                 <View style={styles.headerRow}>
                     <Text variant="titleMedium" style={styles.sectionTitle}>Attributes</Text>
-                    {mode === 'create' && (
-                        <Chip
-                            icon={isLegal ? "check" : "alert-circle-outline"}
-                            style={[styles.statusChip, isLegal ? styles.legalChip : styles.houseruledChip]}
-                            textStyle={{ color: 'white' }}
-                        >
-                            {isLegal ? "Legal" : "Houseruled"}
-                        </Chip>
-                    )}
                 </View>
-
-                {mode === 'create' && (
-                    <View style={styles.pointsContainer}>
-                        <Text style={styles.pointsLabel}>Points Remaining:</Text>
-                        <Text style={[
-                            styles.pointsValue,
-                            pointsRemaining < 0 ? styles.pointsNegative : styles.pointsPositive
-                        ]}>
-                            {pointsRemaining}
-                        </Text>
-                    </View>
-                )}
 
                 {(Object.keys(abilities) as Array<keyof AbilityScores>).map((ability) => {
                     const value = abilities[ability];
@@ -334,5 +304,30 @@ const styles = StyleSheet.create({
     },
     houseruledChip: {
         backgroundColor: '#c62828',
+    },
+    modalContent: {
+        backgroundColor: '#1e1e1e',
+        margin: 20,
+        borderRadius: 8,
+        maxHeight: '80%',
+        padding: 0,
+        overflow: 'hidden',
+    },
+    modalHeader: {
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#333',
+        backgroundColor: '#252525',
+    },
+    modalTitle: {
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    raceList: {
+        // padding: 8,
+    },
+    raceItem: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#2c2c2c',
     }
 });

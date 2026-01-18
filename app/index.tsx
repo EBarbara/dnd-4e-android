@@ -14,18 +14,8 @@ export default function HomeScreen() {
         fetchCharacters();
     }, []);
 
-    const handleCreateNew = async () => {
-        const { addCharacter, characters } = useCharacterStore.getState();
-        // Since addCharacter is async and we want the new ID, we might need to change store or just wait and find
-        // For simplicity: add default, then fetch latest or rely on return
-        // Ideally addCharacter returns the new ID. Let's assume we can get it or generate it here.
-
-        // Actually, let's look at the store. It generates ID inside createDefaultCharacter.
-        // We can pass an ID if we want, or we need to refactor store to return the new character.
-        // Let's rely on generating ID here to be safe and navigating to it.
-        const newId = Date.now().toString();
-        await addCharacter({ id: newId }); // Pass ID to ensure we know it
-        router.push(`/character/${newId}`);
+    const handleCreateNew = () => {
+        router.push('/character/create');
     };
 
     return (
