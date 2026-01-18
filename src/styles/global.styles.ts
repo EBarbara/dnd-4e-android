@@ -133,4 +133,7 @@ export const globalStyles = StyleSheet.create({
         color: theme.colors.subtext,
         marginTop: 4,
     },
+    scrollContent: {
+        paddingBottom: theme.spacing.large,
+    },
 });

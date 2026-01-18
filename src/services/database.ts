@@ -56,7 +56,21 @@ export const initDatabase = async () => {
             CREATE TABLE IF NOT EXISTS races (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 name TEXT, 
-                traits TEXT
+                quote TEXT,
+                description TEXT,
+                ability_scores TEXT,
+                size TEXT,
+                speed TEXT,
+                vision TEXT,
+                languages TEXT,
+                defense_bonuses TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS race_traits (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                race_id INTEGER,
+                trait TEXT,
+                FOREIGN KEY (race_id) REFERENCES races (id)
             );
 
             CREATE TABLE IF NOT EXISTS classes (
@@ -117,15 +131,30 @@ const seedCompendium = async (db: SQLite.SQLiteDatabase) => {
         const result = await db.getFirstAsync<{ value: string }>('SELECT value FROM meta WHERE key = ?', 'compendium_version');
         console.log('Current version in DB:', result?.value);
 
-        const currentVersion = '1.1';
+        const currentVersion = '1.5';
 
         if (!result || result.value !== currentVersion) {
             console.log('Seeding compendium data... (This may take a moment)');
 
             await db.withTransactionAsync(async () => {
                 console.log('Clearing old data...');
+                // Drop and recreate races table to ensure schema definition is up to date
                 await db.execAsync(`
-                    DELETE FROM races;
+                    DROP TABLE IF EXISTS races;
+                    CREATE TABLE races (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        name TEXT, 
+                        quote TEXT,
+                        description TEXT,
+                        ability_scores TEXT,
+                        size TEXT,
+                        speed TEXT,
+                        vision TEXT,
+                        languages TEXT,
+                        defense_bonuses TEXT
+                    );
+
+                    DELETE FROM race_traits;
                     DELETE FROM classes;
                     DELETE FROM skills;
                     DELETE FROM feats;
@@ -134,7 +163,22 @@ const seedCompendium = async (db: SQLite.SQLiteDatabase) => {
 
                 console.log('Inserting races...');
                 for (const race of racesData) {
-                    await db.runAsync('INSERT INTO races (name, traits) VALUES (?, ?)', race.name, JSON.stringify(race.traits));
+                    const result = await db.runAsync(
+                        'INSERT INTO races (name, quote, description, ability_scores, size, speed, vision, languages, defense_bonuses) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                        race.name,
+                        race.quote,
+                        race.description,
+                        race.ability_scores,
+                        race.size,
+                        race.speed,
+                        race.vision,
+                        race.languages,
+                        race.defense_bonuses
+                    );
+                    const raceId = result.lastInsertRowId;
+                    for (const trait of race.traits) {
+                        await db.runAsync('INSERT INTO race_traits (race_id, trait) VALUES (?, ?)', raceId, trait);
+                    }
                 }
 
                 console.log('Inserting classes...');
