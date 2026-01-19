@@ -1,6 +1,7 @@
 import { View, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useCharacterStore } from '../../src/store/characterStore';
+import { useCompendiumStore } from '../../src/store/compendiumStore';
 import { Text, Button, Title, Paragraph, Card } from 'react-native-paper';
 import { globalStyles } from '../../src/styles/global.styles';
 import { theme } from '../../src/styles/theme';
@@ -11,6 +12,9 @@ export default function CharacterDetailScreen() {
     const character = useCharacterStore((state) =>
         state.characters.find(c => c.id === id)
     );
+    const races = useCompendiumStore((state) => state.races);
+    const raceData = races.find(r => r.name === character?.race);
+
     const deleteCharacter = useCharacterStore((state) => state.deleteCharacter);
 
     if (!character) {
@@ -49,6 +53,17 @@ export default function CharacterDetailScreen() {
                         </View>
                     </Card.Content>
                 </Card>
+
+                {raceData?.traits && raceData.traits.length > 0 && (
+                    <Card style={globalStyles.card}>
+                        <Card.Title title="Traits" titleStyle={globalStyles.cardTitle} />
+                        <Card.Content>
+                            {raceData.traits.map((trait, index) => (
+                                <Paragraph key={index} style={globalStyles.text}>• {trait}</Paragraph>
+                            ))}
+                        </Card.Content>
+                    </Card>
+                )}
             </View>
 
             {/* Update Header Title */}
